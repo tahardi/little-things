@@ -1,0 +1,6 @@
+appId: com.tahardi.littlethings
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: 'app-title'
