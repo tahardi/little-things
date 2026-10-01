@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Margaret Lin",
+    "preferred_name": "Maggie",
+    "nicknames": ["Mags"],
+    "relationship": "sister-in-law"
+  },
+  {
+    "id": 2,
+    "name": "Sam Ortiz",
+    "preferred_name": null,
+    "nicknames": ["Sammy"],
+    "relationship": "college friend"
+  },
+  {
+    "id": 3,
+    "name": "Priya Nair",
+    "preferred_name": null,
+    "nicknames": [],
+    "relationship": null
+  }
+]

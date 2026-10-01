@@ -1,0 +1,52 @@
+{
+  "transcript": "Maggie is getting into pottery and wants a new wheel. Sammy's birthday is March third. Also ran into Dave, who just got into fly fishing.",
+  "matches": [
+    {
+      "person_id": 1,
+      "note": "Getting into pottery and wants a new wheel.",
+      "changes": [
+        {
+          "type": "add_interest",
+          "text": "pottery",
+          "label": null,
+          "month": null,
+          "day": null,
+          "year": null,
+          "recurring": null,
+          "given_on": null,
+          "occasion": null
+        },
+        {
+          "type": "add_gift_idea",
+          "text": "pottery wheel",
+          "label": null,
+          "month": null,
+          "day": null,
+          "year": null,
+          "recurring": null,
+          "given_on": null,
+          "occasion": null
+        }
+      ]
+    },
+    {
+      "person_id": 2,
+      "note": "Birthday is March 3rd.",
+      "changes": [
+        {
+          "type": "set_birthday",
+          "text": null,
+          "label": null,
+          "month": 3,
+          "day": 3,
+          "year": null,
+          "recurring": null,
+          "given_on": null,
+          "occasion": null
+        }
+      ]
+    }
+  ],
+  "unknown": [{ "name": "Dave", "text": "Just got into fly fishing." }],
+  "notes": "\"Sammy\" matched Sam Ortiz by nickname."
+}
