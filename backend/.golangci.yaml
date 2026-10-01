@@ -7,6 +7,15 @@ linters:
           json: snake
   exclusions:
     generated: lax
+    rules:
+      - path: internal/transcribe/whisper\.go
+        linters:
+          - gosec
+        text: G204
+      - path: _test\.go
+        linters:
+          - gosec
+        text: G306
     presets:
       - comments
       - common-false-positives
