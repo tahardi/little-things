@@ -57,5 +57,21 @@ jobs:
         with:
           go-version-file: './backend/go.mod'
 
+      - name: Install Tools
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg cmake
+
+      - name: Cache Whisper
+        uses: actions/cache@v6
+        with:
+          path: |
+            backend/.tools/whisper.cpp/build/bin
+            backend/.tools/models
+          key: whisper-v1.9.4-tiny.en-${{ runner.os }}
+
+      - name: Build Whisper
+        run: |
+          if [ ! -x backend/.tools/whisper.cpp/build/bin/whisper-cli ]; then make -C backend whisper-build; fi
+          if [ ! -f backend/.tools/models/ggml-tiny.en.bin ]; then make -C backend whisper-model; fi
+
       - name: Run Integration Tests
         run: make -C backend test-integration
