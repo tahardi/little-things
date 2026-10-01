@@ -19,48 +19,54 @@ type Whisper struct {
 	tempDir    string
 }
 
-func NewWhisper(modelPath string) *Whisper {
+func NewWhisper(ffmpegBin, whisperBin, modelPath, tempDir string) *Whisper {
 	return &Whisper{
-		ffmpegBin:  "ffmpeg",
-		whisperBin: "whisper-cli",
+		ffmpegBin:  ffmpegBin,
+		whisperBin: whisperBin,
 		modelPath:  modelPath,
-		tempDir:    os.TempDir(),
+		tempDir:    tempDir,
 	}
 }
 
 func (w *Whisper) Transcribe(ctx context.Context, audioPath string) (string, error) {
-	if err := ctx.Err(); err != nil {
-		return "", fmt.Errorf("transcribing: %w", err)
-	}
 	f, err := os.CreateTemp(w.tempDir, "clip-*.wav")
 	if err != nil {
-		return "", fmt.Errorf("creating temp file: %w", err)
+		return "", fmt.Errorf("creating temp wav: %w", err)
 	}
 	wav := f.Name()
-	_ = f.Close()
 	defer os.Remove(wav)
-
-	_, err = run(ctx, w.ffmpegBin, "-y", "-i", audioPath, "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", wav)
-	if err != nil {
-		return "", err
+	if err = f.Close(); err != nil {
+		return "", fmt.Errorf("closing temp wav: %w", err)
 	}
-	out, err := run(ctx, w.whisperBin, "-m", w.modelPath, "-f", wav, "-l", "en", "-nt", "-np")
+
+	ffmpeg := exec.CommandContext(
+		ctx,
+		w.ffmpegBin,
+		"-y",
+		"-i", audioPath,
+		"-ar", "16000",
+		"-ac", "1",
+		"-c:a", "pcm_s16le",
+		wav,
+	)
+	if _, err = run(ffmpeg); err != nil {
+		return "", fmt.Errorf("%w: ffmpeg: %w", ErrRunning, err)
+	}
+
+	whisper := exec.CommandContext(ctx, w.whisperBin, "-m", w.modelPath, "-f", wav, "-l", "en", "-nt", "-np")
+	out, err := run(whisper)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: whisper: %w", ErrRunning, err)
 	}
 	return strings.Join(strings.Fields(out), " "), nil
 }
 
-func run(ctx context.Context, bin string, args ...string) (string, error) {
+func run(cmd *exec.Cmd) (string, error) {
 	var stdout, stderr bytes.Buffer
-	cmd := exec.CommandContext(ctx, bin, args...)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		if ctxErr := ctx.Err(); ctxErr != nil {
-			return "", fmt.Errorf("running %s: %w", bin, ctxErr)
-		}
-		return "", fmt.Errorf("%w: %s: %w: %s", ErrRunning, bin, err, strings.TrimSpace(stderr.String()))
+		return "", fmt.Errorf("%w: %s", err, strings.TrimSpace(stderr.String()))
 	}
 	return stdout.String(), nil
 }

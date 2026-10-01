@@ -39,33 +39,50 @@ tidy:
 test-unit: tidy
 	@go test -v -count=1 -race ./internal/...
 
+.PHONY: test-integration
+test-integration: export WHISPER_BIN ?= $(CURDIR)/$(whisper_bin)
+test-integration: export WHISPER_MODEL ?= $(CURDIR)/$(whisper_model)
+test-integration: tidy whisper-build whisper-model
+	@go test -v -count=1 -race ./test/integration/...
+
+.PHONY: test-live
+test-live: tidy
+	@go test -v -count=1 -race ./test/live/...
+
 tools_dir=.tools
 whisper_version ?= v1.9.4
 whisper_cuda ?= 0
 whisper_model_name ?= tiny.en
 whisper_src=$(tools_dir)/whisper.cpp
+whisper_bin=$(whisper_src)/build/bin/whisper-cli
+whisper_model=$(tools_dir)/models/ggml-$(whisper_model_name).bin
 
 .PHONY: whisper-build
-whisper-build:
+whisper-build: $(whisper_bin)
+
+$(whisper_bin):
 	@if [ ! -d $(whisper_src) ]; then \
-		git clone --depth 1 --branch $(whisper_version) https://github.com/ggml-org/whisper.cpp $(whisper_src); \
+		git clone \
+			--depth 1 \
+			--branch $(whisper_version) \
+			https://github.com/ggml-org/whisper.cpp \
+			$(whisper_src); \
 	fi
-	@cmake -S $(whisper_src) -B $(whisper_src)/build -DGGML_CUDA=$(whisper_cuda)
-	@cmake --build $(whisper_src)/build -j --config Release
+	@cmake \
+		-S $(whisper_src) \
+		-B $(whisper_src)/build \
+		-DGGML_CUDA=$(whisper_cuda)
+	@cmake \
+		--build $(whisper_src)/build \
+		-j \
+		--config Release
 
 .PHONY: whisper-model
-whisper-model:
+whisper-model: $(whisper_model)
+
+$(whisper_model):
 	@mkdir -p $(tools_dir)/models
-	@curl -fL -o $(tools_dir)/models/ggml-$(whisper_model_name).bin \
+	@curl \
+		-fL \
+		-o $@ \
 		https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-$(whisper_model_name).bin
-
-WHISPER_BIN ?= $(CURDIR)/$(whisper_src)/build/bin/whisper-cli
-WHISPER_MODEL ?= $(CURDIR)/$(tools_dir)/models/ggml-$(whisper_model_name).bin
-
-.PHONY: test-integration
-test-integration: tidy
-	@WHISPER_BIN=$(WHISPER_BIN) WHISPER_MODEL=$(WHISPER_MODEL) go test -v -count=1 -race ./test/integration/...
-
-.PHONY: test-live
-test-live: tidy
-	@go test -v -count=1 -race ./test/live/...

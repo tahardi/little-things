@@ -64,7 +64,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: |
-            backend/.tools/whisper.cpp/build
+            backend/.tools/whisper.cpp/build/bin
             backend/.tools/models
           key: whisper-v1.9.4-tiny.en-${{ runner.os }}
 
