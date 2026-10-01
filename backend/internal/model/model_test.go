@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,22 +18,66 @@ func TestFixtures_RoundTrip(t *testing.T) {
 		file string
 		into func() any
 	}{
-		{"health response", "health-response.json", func() any { return &model.HealthResponse{} }},
-		{"field response phone", "field-response-phone.json", func() any { return &model.FieldResponse{} }},
-		{"field response interests", "field-response-interests.json", func() any { return &model.FieldResponse{} }},
-		{"field response birthday", "field-response-birthday.json", func() any { return &model.FieldResponse{} }},
-		{"note people", "note-people.json", func() any { return &[]model.Person{} }},
-		{"note response", "note-response.json", func() any { return &model.NoteResponse{} }},
-		{"gifts request", "gifts-request.json", func() any { return &model.GiftsRequest{} }},
-		{"gifts response", "gifts-response.json", func() any { return &model.GiftsResponse{} }},
-		{"error no speech", "error-no-speech.json", func() any { return &model.ErrorResponse{} }},
-		{"error unreadable date", "error-unreadable-date.json", func() any { return &model.ErrorResponse{} }},
-		{"error unauthorized", "error-unauthorized.json", func() any { return &model.ErrorResponse{} }},
+		{
+			"health response",
+			"../../../api/testdata/health-response.json",
+			func() any { return &model.HealthResponse{} },
+		},
+		{
+			"field response phone",
+			"../../../api/testdata/field-response-phone.json",
+			func() any { return &model.FieldResponse{} },
+		},
+		{
+			"field response interests",
+			"../../../api/testdata/field-response-interests.json",
+			func() any { return &model.FieldResponse{} },
+		},
+		{
+			"field response birthday",
+			"../../../api/testdata/field-response-birthday.json",
+			func() any { return &model.FieldResponse{} },
+		},
+		{
+			"note people",
+			"../../../api/testdata/note-people.json",
+			func() any { return &[]model.Person{} },
+		},
+		{
+			"note response",
+			"../../../api/testdata/note-response.json",
+			func() any { return &model.NoteResponse{} },
+		},
+		{
+			"gifts request",
+			"../../../api/testdata/gifts-request.json",
+			func() any { return &model.GiftsRequest{} },
+		},
+		{
+			"gifts response",
+			"../../../api/testdata/gifts-response.json",
+			func() any { return &model.GiftsResponse{} },
+		},
+		{
+			"error no speech",
+			"../../../api/testdata/error-no-speech.json",
+			func() any { return &model.ErrorResponse{} },
+		},
+		{
+			"error unreadable date",
+			"../../../api/testdata/error-unreadable-date.json",
+			func() any { return &model.ErrorResponse{} },
+		},
+		{
+			"error unauthorized",
+			"../../../api/testdata/error-unauthorized.json",
+			func() any { return &model.ErrorResponse{} },
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			original, err := os.ReadFile(filepath.Join("..", "..", "..", "api", "testdata", tt.file))
+			original, err := os.ReadFile(tt.file)
 			require.NoError(t, err)
 			got := tt.into()
 
@@ -53,7 +96,7 @@ func TestFixtures_RoundTrip(t *testing.T) {
 
 func TestFixtures_BirthdayValue(t *testing.T) {
 	// given
-	original, err := os.ReadFile(filepath.Join("..", "..", "..", "api", "testdata", "field-response-birthday.json"))
+	original, err := os.ReadFile("../../../api/testdata/field-response-birthday.json")
 	require.NoError(t, err)
 	var resp model.FieldResponse
 	require.NoError(t, json.Unmarshal(original, &resp))
