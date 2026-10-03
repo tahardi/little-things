@@ -1,4 +1,4 @@
-package api_test
+package server_test
 
 import (
 	"bytes"
@@ -12,8 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tahardi/little-things/backend/internal/api"
-	"github.com/tahardi/little-things/backend/internal/config"
+	"github.com/tahardi/little-things/backend/internal/server"
 )
 
 func TestServer_Health(t *testing.T) {
@@ -34,8 +33,7 @@ func TestServer_Health(t *testing.T) {
 			// given
 			var logs bytes.Buffer
 			logger := slog.New(slog.NewTextHandler(&logs, nil))
-			cfg := config.Config{AppKey: "secret"}
-			srv := httptest.NewServer(api.NewServer(cfg, api.Deps{}, logger))
+			srv := httptest.NewServer(server.NewServer("secret", server.Deps{}, logger))
 			defer srv.Close()
 			req, err := http.NewRequestWithContext(t.Context(), tc.method, srv.URL+"/health", nil)
 			require.NoError(t, err)

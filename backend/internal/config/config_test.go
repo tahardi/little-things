@@ -28,7 +28,7 @@ func TestLoad(t *testing.T) {
 			},
 			want: config.Config{
 				AnthropicAPIKey: "sk-test",
-				AppKey:          "secret",
+				Key:             "secret",
 				WhisperBin:      "/bin/whisper",
 				WhisperModel:    "/models/ggml-base.en.bin",
 				FFmpegBin:       "/bin/ffmpeg",
@@ -39,7 +39,7 @@ func TestLoad(t *testing.T) {
 			name: "happy path - defaults applied",
 			env:  map[string]string{"LITTLETHINGS_KEY": "secret"},
 			want: config.Config{
-				AppKey:     "secret",
+				Key:        "secret",
 				ListenAddr: "127.0.0.1:8081",
 				WhisperBin: "whisper-cli",
 				FFmpegBin:  "ffmpeg",
