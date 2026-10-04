@@ -7,31 +7,40 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/tahardi/little-things/backend/internal/gifts"
 	"github.com/tahardi/little-things/backend/internal/model"
+	"github.com/tahardi/little-things/backend/mocks"
 )
 
 var errBoom = errors.New("boom")
 
-type fakeClient struct {
+type prompt struct {
 	system string
 	user   string
-	reply  any
-	err    error
+	schema map[string]any
 }
 
-func (f *fakeClient) Structured(_ context.Context, system string, user string, _ map[string]any, out any) error {
-	f.system, f.user = system, user
-	if f.err != nil {
-		return f.err
-	}
-	encoded, err := json.Marshal(f.reply)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(encoded, out)
+func newClient(t *testing.T, reply any, err error) (*mocks.Client, *prompt) {
+	t.Helper()
+	got := &prompt{}
+	client := mocks.NewClient(t)
+	client.EXPECT().
+		Structured(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		RunAndReturn(func(_ context.Context, system string, user string, schema map[string]any, out any) error {
+			got.system, got.user, got.schema = system, user, schema
+			if err != nil {
+				return err
+			}
+			encoded, marshalErr := json.Marshal(reply)
+			if marshalErr != nil {
+				return marshalErr
+			}
+			return json.Unmarshal(encoded, out)
+		})
+	return client, got
 }
 
 func ideas(n int) []model.GiftIdea {
@@ -85,7 +94,8 @@ func TestGenerator_Generate(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			// given
-			generator := gifts.NewGenerator(&fakeClient{reply: tc.reply, err: tc.err})
+			client, _ := newClient(t, tc.reply, tc.err)
+			generator := gifts.NewGenerator(client)
 
 			// when
 			got, err := generator.Generate(context.Background(), request())
@@ -102,7 +112,7 @@ func TestGenerator_Generate(t *testing.T) {
 
 	t.Run("happy path - prompt carries exclusions and occasion", func(t *testing.T) {
 		// given
-		client := &fakeClient{reply: model.GiftsResponse{Ideas: ideas(5)}}
+		client, got := newClient(t, model.GiftsResponse{Ideas: ideas(5)}, nil)
 		generator := gifts.NewGenerator(client)
 
 		// when
@@ -110,10 +120,10 @@ func TestGenerator_Generate(t *testing.T) {
 
 		// then
 		require.NoError(t, err)
-		assert.Contains(t, client.user, `"gifts_given":["whale print"]`)
-		assert.Contains(t, client.user, `"gift_ideas":["custom book stamp"]`)
-		assert.Contains(t, client.user, `"occasion":"birthday"`)
-		assert.Contains(t, client.user, "pottery")
-		assert.Contains(t, client.system, "Never suggest anything in gifts_given or gift_ideas")
+		assert.Contains(t, got.user, `"gifts_given":["whale print"]`)
+		assert.Contains(t, got.user, `"gift_ideas":["custom book stamp"]`)
+		assert.Contains(t, got.user, `"occasion":"birthday"`)
+		assert.Contains(t, got.user, "pottery")
+		assert.Contains(t, got.system, "Never suggest anything in gifts_given or gift_ideas")
 	})
 }
