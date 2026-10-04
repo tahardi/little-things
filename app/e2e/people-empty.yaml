@@ -1,0 +1,11 @@
+appId: com.tahardi.littlethings
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: 'people-empty'
+- assertVisible: 'No people yet. Tap + to add someone.'
+- tapOn:
+    id: 'open-settings'
+- assertVisible:
+    id: 'settings-save'
