@@ -37,12 +37,18 @@ func TestLoad(t *testing.T) {
 		},
 		{
 			name: "happy path - defaults applied",
-			env:  map[string]string{"LITTLETHINGS_KEY": "secret"},
+			env: map[string]string{
+				"ANTHROPIC_API_KEY": "sk-test",
+				"LITTLETHINGS_KEY":  "secret",
+				"WHISPER_MODEL":     "/models/ggml-base.en.bin",
+			},
 			want: config.Config{
-				Key:        "secret",
-				ListenAddr: "127.0.0.1:8081",
-				WhisperBin: "whisper-cli",
-				FFmpegBin:  "ffmpeg",
+				AnthropicAPIKey: "sk-test",
+				Key:             "secret",
+				ListenAddr:      "127.0.0.1:8081",
+				WhisperBin:      "whisper-cli",
+				WhisperModel:    "/models/ggml-base.en.bin",
+				FFmpegBin:       "ffmpeg",
 			},
 		},
 		{
@@ -54,6 +60,20 @@ func TestLoad(t *testing.T) {
 			name:    "error - key whitespace",
 			env:     map[string]string{"LITTLETHINGS_KEY": "   "},
 			wantErr: config.ErrMissingKey,
+		},
+		{
+			name:    "error - anthropic key empty",
+			env:     map[string]string{"LITTLETHINGS_KEY": "secret", "WHISPER_MODEL": "/models/m.bin"},
+			wantErr: config.ErrMissingAnthropicKey,
+		},
+		{
+			name: "error - whisper model whitespace",
+			env: map[string]string{
+				"ANTHROPIC_API_KEY": "sk-test",
+				"LITTLETHINGS_KEY":  "secret",
+				"WHISPER_MODEL":     "  ",
+			},
+			wantErr: config.ErrMissingWhisperModel,
 		},
 	}
 	for _, tc := range tests {

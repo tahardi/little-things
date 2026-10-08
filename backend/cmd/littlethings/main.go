@@ -11,7 +11,12 @@ import (
 	"time"
 
 	"github.com/tahardi/little-things/backend/internal/config"
+	"github.com/tahardi/little-things/backend/internal/field"
+	"github.com/tahardi/little-things/backend/internal/gifts"
+	"github.com/tahardi/little-things/backend/internal/llm"
+	"github.com/tahardi/little-things/backend/internal/note"
 	"github.com/tahardi/little-things/backend/internal/server"
+	"github.com/tahardi/little-things/backend/internal/transcribe"
 )
 
 const (
@@ -34,9 +39,17 @@ func run(logger *slog.Logger) error {
 		return err
 	}
 
+	client := llm.NewAnthropic(cfg.AnthropicAPIKey)
+	deps := server.Deps{
+		Transcriber: transcribe.NewWhisper(cfg.FFmpegBin, cfg.WhisperBin, cfg.WhisperModel, os.TempDir()),
+		Fields:      field.NewParser(client),
+		Notes:       note.NewExtractor(client),
+		Gifts:       gifts.NewGenerator(client),
+	}
+
 	srv := &http.Server{
 		Addr:              cfg.ListenAddr,
-		Handler:           server.NewServer(cfg.Key, server.Deps{}, logger),
+		Handler:           server.NewServer(cfg.Key, deps, logger),
 		ReadHeaderTimeout: readHeaderTimeout,
 		WriteTimeout:      writeTimeout,
 	}

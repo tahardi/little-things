@@ -64,3 +64,21 @@ Suggests five gift ideas for one person.
 | `no_speech`         | 422    |
 | `unreadable_date`   | 422    |
 | `upstream_failed`   | 502    |
+
+## Route errors
+
+| Route          | Status | Code              | When                                                                   |
+| -------------- | ------ | ----------------- | ---------------------------------------------------------------------- |
+| `POST /field`  | 400    | `bad_request`     | `field` missing or not one of the listed fields, or `audio` missing    |
+| `POST /field`  | 422    | `no_speech`       | transcript is empty                                                    |
+| `POST /field`  | 422    | `unreadable_date` | the birthday could not be read as a date                               |
+| `POST /field`  | 502    | `upstream_failed` | transcribing or parsing failed, or Claude refused or replied badly     |
+| `POST /note`   | 400    | `bad_request`     | `people` missing or not valid JSON, or `audio` missing                 |
+| `POST /note`   | 422    | `no_speech`       | transcript is empty                                                    |
+| `POST /note`   | 502    | `upstream_failed` | transcribing or extracting failed, or Claude refused or replied badly  |
+| `POST /gifts`  | 400    | `bad_request`     | body is not valid JSON, or `name` is blank                             |
+| `POST /gifts`  | 413    | `payload_too_large` | body is over 1 MB                                                    |
+| `POST /gifts`  | 502    | `upstream_failed` | generating ideas failed, or Claude refused or replied badly            |
+
+Request fields are checked before any audio is transcribed. `people` may be an empty list; every person mentioned is
+then reported as unknown. Multipart uploads over 50 MB return `payload_too_large`.
