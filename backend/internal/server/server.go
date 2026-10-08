@@ -7,9 +7,11 @@ import (
 )
 
 func NewServer(key string, deps Deps, logger *slog.Logger) http.Handler {
-	_ = deps
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", healthHandler)
+	mux.Handle("POST /field", handleField(deps, logger))
+	mux.Handle("POST /note", handleNote(deps, logger))
+	mux.Handle("POST /gifts", handleGifts(deps, logger))
 	return logRequests(logger, requireKey(key, mux))
 }
 
