@@ -2,6 +2,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Button, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { QueueBanner } from '@/components/QueueBanner';
 import { upcoming } from '@/dates/upcoming';
 import { listAllDates } from '@/db/dates';
 import { useDb } from '@/db/DbProvider';
@@ -49,6 +50,7 @@ export default function PeopleScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <QueueBanner />
       <Button testID="add-note" title="Add Note" onPress={() => router.push('/note/new')} />
       {soon.length > 0 && (
         <View testID="upcoming-strip" style={styles.strip}>
