@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 
 import { ApiError, createClient } from '@/api/client';
+import { ExportSection } from '@/components/ExportSection';
 import { syncDates } from '@/dates/sync';
 import { useDb } from '@/db/DbProvider';
 import { loadSettings, saveSettings } from '@/settings/store';
@@ -113,6 +114,7 @@ export default function SettingsScreen() {
       <Button testID="settings-save" title="Save" onPress={save} />
       <Button testID="settings-test" title="Test connection" onPress={testConnection} />
       <Text testID="settings-status">{status}</Text>
+      <ExportSection />
     </ScrollView>
   );
 }
