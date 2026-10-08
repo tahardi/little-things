@@ -6,6 +6,7 @@ import PeopleScreen from '@/app/index';
 import { setBirthday } from '@/db/dates';
 import { type Db } from '@/db/db';
 import { DbProvider } from '@/db/DbProvider';
+import { createClip } from '@/db/clips';
 import { createPerson } from '@/db/people';
 import { createTestDb } from '../../testing/testDb';
 
@@ -18,6 +19,20 @@ jest.mock('expo-router', () => {
     useFocusEffect: (effect: () => void | (() => void)) => useEffect(effect, [effect]),
   };
 });
+
+jest.mock('@/settings/store', () => ({
+  loadSettings: jest.fn().mockResolvedValue({
+    baseUrl: 'http://backend',
+    key: 'secret',
+    reminderLeadDays: 7,
+    reminderHour: 9,
+    reminderMinute: 0,
+  }),
+}));
+
+jest.mock('@/api/client', () => ({
+  createClient: () => ({ health: jest.fn().mockResolvedValue({ status: 'ok' }) }),
+}));
 
 function addPerson(db: Db, name: string, extra: { preferredName?: string; relationship?: string } = {}) {
   return createPerson(
@@ -134,5 +149,12 @@ describe('PeopleScreen', () => {
     await fireEvent.press(screen.getByTestId(`person-row-${id}`));
 
     expect(mockPush.mock.calls).toEqual([['/note/new'], ['/person/new'], [`/person/${id}`]]);
+  });
+
+  test('shows the queue banner when a clip is queued', async () => {
+    await createClip(db, 'file:///a.m4a', new Date());
+    await renderScreen(db);
+
+    expect(await screen.findByTestId('process-all')).toBeOnTheScreen();
   });
 });
