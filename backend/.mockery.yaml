@@ -9,3 +9,11 @@ packages:
   github.com/tahardi/little-things/backend/internal/llm:
     interfaces:
       Client:
+  github.com/tahardi/little-things/backend/internal/transcribe:
+    interfaces:
+      Transcriber:
+  github.com/tahardi/little-things/backend/internal/server:
+    interfaces:
+      FieldParser:
+      NoteExtractor:
+      GiftGenerator:
