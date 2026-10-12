@@ -74,4 +74,11 @@ jobs:
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
       - name: Run Flows
-        run: maestro test e2e/
+        run: maestro test e2e/ --debug-output maestro-debug
+
+      - name: Upload Maestro Debug Output
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: maestro-debug
+          path: app/maestro-debug
