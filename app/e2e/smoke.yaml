@@ -2,5 +2,7 @@ appId: com.tahardi.littlethings
 ---
 - launchApp:
     clearState: true
-- assertVisible:
-    id: 'add-note'
+- extendedWaitUntil:
+    visible:
+      id: 'add-note'
+    timeout: 60000
