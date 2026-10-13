@@ -7,4 +7,5 @@ type Deps struct {
 	Fields      FieldParser
 	Notes       NoteExtractor
 	Gifts       GiftGenerator
+	Calendar    CalendarSyncer
 }

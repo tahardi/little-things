@@ -17,3 +17,4 @@ packages:
       FieldParser:
       NoteExtractor:
       GiftGenerator:
+      CalendarSyncer:

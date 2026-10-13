@@ -12,6 +12,7 @@ func NewServer(key string, deps Deps, logger *slog.Logger) http.Handler {
 	mux.Handle("POST /field", handleField(deps, logger))
 	mux.Handle("POST /note", handleNote(deps, logger))
 	mux.Handle("POST /gifts", handleGifts(deps, logger))
+	mux.Handle("PUT /calendar", handleCalendar(deps, logger))
 	return logRequests(logger, requireKey(key, mux))
 }
 

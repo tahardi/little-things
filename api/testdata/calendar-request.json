@@ -1,0 +1,7 @@
+{
+  "dates": [
+    { "id": 11, "title": "Maggie's birthday", "month": 10, "day": 11, "year": 1994, "recurring": true },
+    { "id": 12, "title": "Sam's birthday", "month": 3, "day": 3, "year": null, "recurring": true },
+    { "id": 13, "title": "Priya: surgery", "month": 11, "day": 20, "year": 2026, "recurring": false }
+  ]
+}
