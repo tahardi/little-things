@@ -1,0 +1,37 @@
+appId: com.tahardi.littlethings
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+- extendedWaitUntil:
+    visible:
+      id: 'add-person'
+    timeout: 60000
+- tapOn:
+    id: 'add-person'
+- tapOn:
+    id: 'answer-input'
+- inputText: 'Priya Nair'
+- tapOn:
+    id: 'next-button'
+- tapOn:
+    id: 'answer-input'
+- inputText: 'Pri'
+- tapOn:
+    id: 'next-button'
+- tapOn:
+    id: 'skip-button'
+- tapOn:
+    id: 'skip-button'
+- tapOn:
+    id: 'skip-button'
+- tapOn:
+    id: 'skip-button'
+- tapOn:
+    id: 'skip-button'
+- tapOn:
+    id: 'answer-input'
+- inputText: 'chess, gardening'
+- tapOn:
+    id: 'save-button'
