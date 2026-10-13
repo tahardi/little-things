@@ -13,25 +13,41 @@ appId: com.tahardi.littlethings
 - tapOn:
     id: 'answer-input'
 - inputText: 'Priya Nair'
-- tapOn:
-    id: 'next-button'
+- hideKeyboard
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: 'next-button'
+      - assertVisible: '2 of 8'
 - tapOn:
     id: 'answer-input'
 - inputText: 'Pri'
-- tapOn:
-    id: 'next-button'
-- tapOn:
-    id: 'skip-button'
-- tapOn:
-    id: 'skip-button'
-- tapOn:
-    id: 'skip-button'
-- tapOn:
-    id: 'skip-button'
+- hideKeyboard
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: 'next-button'
+      - assertVisible: '3 of 8'
 - tapOn:
     id: 'skip-button'
+- assertVisible: '4 of 8'
+- tapOn:
+    id: 'skip-button'
+- assertVisible: '5 of 8'
+- tapOn:
+    id: 'skip-button'
+- assertVisible: '6 of 8'
+- tapOn:
+    id: 'skip-button'
+- assertVisible: '7 of 8'
+- tapOn:
+    id: 'skip-button'
+- assertVisible: '8 of 8'
 - tapOn:
     id: 'answer-input'
 - inputText: 'chess, gardening'
+- hideKeyboard
 - tapOn:
     id: 'save-button'
