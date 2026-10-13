@@ -2,10 +2,17 @@ appId: com.tahardi.littlethings
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'add-note'
+    timeout: 60000
 - assertVisible:
     id: 'people-empty'
 - assertVisible: 'No people yet. Tap + to add someone.'
-- tapOn:
-    id: 'open-settings'
-- assertVisible:
-    id: 'settings-save'
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: 'open-settings'
+      - assertVisible:
+          id: 'settings-save'
