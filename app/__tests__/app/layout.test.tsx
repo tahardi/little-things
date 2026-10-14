@@ -6,6 +6,10 @@ import SettingsScreen from '@/app/settings';
 import { createTestDb } from '../../testing/testDb';
 
 jest.mock('@/db/db', () => ({ openDb: jest.fn() }));
+jest.mock('expo-notifications', () => ({
+  getPermissionsAsync: jest.fn().mockResolvedValue({ granted: true }),
+  setNotificationHandler: jest.fn(),
+}));
 jest.mock('@/settings/store', () => ({
   loadSettings: jest.fn().mockResolvedValue({
     baseUrl: '',

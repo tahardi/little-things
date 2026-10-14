@@ -3,6 +3,7 @@ import { Button, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 
 import { ApiError, createClient } from '@/api/client';
 import { ExportSection } from '@/components/ExportSection';
+import { NotificationStatus } from '@/components/NotificationStatus';
 import { syncDates } from '@/dates/sync';
 import { useDb } from '@/db/DbProvider';
 import { loadSettings, saveSettings } from '@/settings/store';
@@ -111,6 +112,7 @@ export default function SettingsScreen() {
       />
       <Text>Reminder time (HH:MM)</Text>
       <TextInput testID="settings-reminder-time" value={time} onChangeText={setTime} style={styles.input} />
+      <NotificationStatus />
       <Button testID="settings-save" title="Save" onPress={save} />
       <Button testID="settings-test" title="Test connection" onPress={testConnection} />
       <Text testID="settings-status">{status}</Text>
