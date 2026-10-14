@@ -2,6 +2,9 @@ import { router, Stack } from 'expo-router';
 import { Pressable, Text } from 'react-native';
 
 import { DbProvider } from '@/db/DbProvider';
+import { configureNotificationHandler } from '@/reminders/notifications';
+
+configureNotificationHandler();
 
 function SettingsButton() {
   return (

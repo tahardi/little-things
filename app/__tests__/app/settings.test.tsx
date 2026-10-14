@@ -10,6 +10,10 @@ import { createTestDb } from '../../testing/testDb';
 jest.mock('@/settings/store', () => ({ loadSettings: jest.fn(), saveSettings: jest.fn() }));
 jest.mock('@/api/client', () => ({ ...jest.requireActual('@/api/client'), createClient: jest.fn() }));
 jest.mock('@/dates/sync', () => ({ syncDates: jest.fn().mockResolvedValue(undefined) }));
+jest.mock('expo-notifications', () => ({
+  getPermissionsAsync: jest.fn().mockResolvedValue({ granted: true }),
+  setNotificationHandler: jest.fn(),
+}));
 
 const mockLoad = loadSettings as jest.MockedFunction<typeof loadSettings>;
 const mockSave = saveSettings as jest.MockedFunction<typeof saveSettings>;
@@ -68,6 +72,12 @@ describe('SettingsScreen', () => {
       reminderMinute: 0,
     });
     expect(mockSync).toHaveBeenCalledWith(db);
+  });
+
+  test('shows the notification status', async () => {
+    await renderScreen();
+
+    expect(await screen.findByText('Reminders: on')).toBeOnTheScreen();
   });
 
   test('rejects an invalid reminder time', async () => {
