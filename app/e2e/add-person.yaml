@@ -51,3 +51,10 @@ appId: com.tahardi.littlethings
 - hideKeyboard
 - tapOn:
     id: 'save-button'
+- extendedWaitUntil:
+    visible:
+      id: 'person-title'
+      text: 'Pri'
+    timeout: 30000
+- scrollUntilVisible:
+    element: 'chess'
