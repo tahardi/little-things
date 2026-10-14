@@ -66,8 +66,18 @@ func TestServer_Calendar(t *testing.T) {
 			wantStatus: http.StatusServiceUnavailable,
 			wantBody:   string(notConfigured),
 		},
-		{name: "error - not json", body: "nope", wantStatus: http.StatusBadRequest, wantCode: "bad_request"},
-		{name: "error - missing dates", body: `{}`, wantStatus: http.StatusBadRequest, wantCode: "bad_request"},
+		{
+			name:       "error - not json",
+			body:       "nope",
+			wantStatus: http.StatusBadRequest,
+			wantCode:   "bad_request",
+		},
+		{
+			name:       "error - missing dates",
+			body:       `{}`,
+			wantStatus: http.StatusBadRequest,
+			wantCode:   "bad_request",
+		},
 		{
 			name:       "error - impossible date",
 			body:       `{"dates":[{"id":1,"title":"x","month":2,"day":30,"year":null,"recurring":true}]}`,
