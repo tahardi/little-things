@@ -1,4 +1,4 @@
-import type { Field, FieldResponse, GiftsResponse, HealthResponse, NoteResponse } from './types';
+import type { CalendarResponse, Field, FieldResponse, GiftsResponse, HealthResponse, NoteResponse } from './types';
 
 type Obj = Record<string, unknown>;
 
@@ -74,4 +74,15 @@ export function isNoteResponse(value: unknown): value is NoteResponse {
 
 export function isGiftsResponse(value: unknown): value is GiftsResponse {
   return isObject(value) && Array.isArray(value.ideas) && value.ideas.every(isIdea);
+}
+
+export function isCalendarResponse(value: unknown): value is CalendarResponse {
+  const v = value as Record<string, unknown> | null;
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    Number.isInteger(v.created) &&
+    Number.isInteger(v.updated) &&
+    Number.isInteger(v.deleted)
+  );
 }

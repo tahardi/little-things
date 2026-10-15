@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { isFieldResponse, isGiftsResponse, isHealthResponse, isNoteResponse } from '@/api/guards';
+import { isCalendarResponse, isFieldResponse, isGiftsResponse, isHealthResponse, isNoteResponse } from '@/api/guards';
 import type { Field } from '@/api/types';
 
 function fixture(file: string): unknown {
@@ -58,5 +58,14 @@ describe('isGiftsResponse', () => {
     [{ ideas: 'x' }, false],
   ])('case %#', (value, want) => {
     expect(isGiftsResponse(value)).toBe(want);
+  });
+});
+
+describe('isCalendarResponse', () => {
+  it.each([
+    [fixture('calendar-response.json'), true],
+    [{ created: 1, updated: 0 }, false],
+  ])('case %#', (value, want) => {
+    expect(isCalendarResponse(value)).toBe(want);
   });
 });
