@@ -54,6 +54,18 @@ Suggests five gift ideas for one person.
 - Success: `200` with a body matching `testdata/gifts-response.json` (always exactly five ideas)
 - Failure: `testdata/error-unauthorized.json`
 
+### PUT /calendar
+
+Makes the shared Google Calendar match the phone's dates. The phone always sends every date it has; any tagged event
+whose date is missing from the list is deleted, so an empty list removes every Little Things event.
+
+- Headers: `Authorization: Bearer <key>`, `Content-Type: application/json`
+- Body: `testdata/calendar-request.json` (max 1 MB). `dates` is required; ids must be unique; titles must not be blank;
+  month/day must exist in a leap year; `year` is null or 1000-9999.
+- Success: `200` with counts, matching `testdata/calendar-response.json`
+- Failure: `400 bad_request`, `401` (`testdata/error-unauthorized.json`), `502 upstream_failed` when Google fails,
+  `503` (`testdata/error-calendar-not-configured.json`) when the backend has no calendar configured.
+
 ## Error codes
 
 | Code                | Status |
@@ -64,6 +76,7 @@ Suggests five gift ideas for one person.
 | `no_speech`         | 422    |
 | `unreadable_date`   | 422    |
 | `upstream_failed`   | 502    |
+| `calendar_not_configured` | 503 |
 
 ## Route errors
 
@@ -79,6 +92,10 @@ Suggests five gift ideas for one person.
 | `POST /gifts`  | 400    | `bad_request`     | body is not valid JSON, or `name` is blank                             |
 | `POST /gifts`  | 413    | `payload_too_large` | body is over 1 MB                                                    |
 | `POST /gifts`  | 502    | `upstream_failed` | generating ideas failed, or Claude refused or replied badly            |
+| `PUT /calendar` | 400   | `bad_request`     | body is not valid JSON, `dates` missing, or a date is invalid or repeated |
+| `PUT /calendar` | 413   | `payload_too_large` | body is over 1 MB                                                    |
+| `PUT /calendar` | 502   | `upstream_failed` | Google Calendar failed                                                 |
+| `PUT /calendar` | 503   | `calendar_not_configured` | the backend has no calendar configured                         |
 
 Request fields are checked before any audio is transcribed. `people` may be an empty list; every person mentioned is
 then reported as unknown. Multipart uploads over 50 MB return `payload_too_large`.

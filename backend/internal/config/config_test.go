@@ -75,6 +75,63 @@ func TestLoad(t *testing.T) {
 			},
 			wantErr: config.ErrMissingWhisperModel,
 		},
+		{
+			name: "happy path - calendar configured",
+			env: map[string]string{
+				"ANTHROPIC_API_KEY":              "sk-test",
+				"LITTLETHINGS_KEY":               "secret",
+				"WHISPER_MODEL":                  "/models/ggml-base.en.bin",
+				"GOOGLE_APPLICATION_CREDENTIALS": "/keys/sa",
+				"LITTLETHINGS_CALENDAR_ID":       "abc@group.calendar.google.com",
+			},
+			want: config.Config{
+				AnthropicAPIKey:       "sk-test",
+				Key:                   "secret",
+				ListenAddr:            "127.0.0.1:8081",
+				WhisperBin:            "whisper-cli",
+				WhisperModel:          "/models/ggml-base.en.bin",
+				FFmpegBin:             "ffmpeg",
+				GoogleCredentialsFile: "/keys/sa",
+				GoogleCalendarID:      "abc@group.calendar.google.com",
+			},
+		},
+		{
+			name: "happy path - calendar not configured",
+			env: map[string]string{
+				"ANTHROPIC_API_KEY": "sk-test",
+				"LITTLETHINGS_KEY":  "secret",
+				"WHISPER_MODEL":     "/models/ggml-base.en.bin",
+			},
+			want: config.Config{
+				AnthropicAPIKey: "sk-test",
+				Key:             "secret",
+				ListenAddr:      "127.0.0.1:8081",
+				WhisperBin:      "whisper-cli",
+				WhisperModel:    "/models/ggml-base.en.bin",
+				FFmpegBin:       "ffmpeg",
+			},
+		},
+		{
+			name: "error - only credentials set",
+			env: map[string]string{
+				"ANTHROPIC_API_KEY":              "sk-test",
+				"LITTLETHINGS_KEY":               "secret",
+				"WHISPER_MODEL":                  "/models/ggml-base.en.bin",
+				"GOOGLE_APPLICATION_CREDENTIALS": "/keys/sa",
+			},
+			wantErr: config.ErrPartialCalendarConfig,
+		},
+		{
+			name: "error - only calendar id set",
+			env: map[string]string{
+				"ANTHROPIC_API_KEY":              "sk-test",
+				"LITTLETHINGS_KEY":               "secret",
+				"WHISPER_MODEL":                  "/models/ggml-base.en.bin",
+				"GOOGLE_APPLICATION_CREDENTIALS": "  ",
+				"LITTLETHINGS_CALENDAR_ID":       "abc@group.calendar.google.com",
+			},
+			wantErr: config.ErrPartialCalendarConfig,
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {

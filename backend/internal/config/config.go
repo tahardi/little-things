@@ -9,6 +9,10 @@ var (
 	ErrMissingKey          = errors.New("LITTLETHINGS_KEY is required")
 	ErrMissingAnthropicKey = errors.New("ANTHROPIC_API_KEY is required")
 	ErrMissingWhisperModel = errors.New("WHISPER_MODEL is required")
+
+	ErrPartialCalendarConfig = errors.New(
+		"GOOGLE_APPLICATION_CREDENTIALS and LITTLETHINGS_CALENDAR_ID must be set together",
+	)
 )
 
 type Config struct {
@@ -18,6 +22,9 @@ type Config struct {
 	WhisperBin      string
 	WhisperModel    string
 	FFmpegBin       string
+
+	GoogleCredentialsFile string
+	GoogleCalendarID      string
 }
 
 func Load(getenv func(string) string) (Config, error) {
@@ -33,6 +40,11 @@ func Load(getenv func(string) string) (Config, error) {
 	if strings.TrimSpace(whisperModel) == "" {
 		return Config{}, ErrMissingWhisperModel
 	}
+	credentialsFile := strings.TrimSpace(getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+	calendarID := strings.TrimSpace(getenv("LITTLETHINGS_CALENDAR_ID"))
+	if (credentialsFile == "") != (calendarID == "") {
+		return Config{}, ErrPartialCalendarConfig
+	}
 	return Config{
 		ListenAddr:      withDefault(getenv("LISTEN_ADDR"), "127.0.0.1:8081"),
 		Key:             key,
@@ -40,6 +52,9 @@ func Load(getenv func(string) string) (Config, error) {
 		WhisperBin:      withDefault(getenv("WHISPER_BIN"), "whisper-cli"),
 		WhisperModel:    whisperModel,
 		FFmpegBin:       withDefault(getenv("FFMPEG_BIN"), "ffmpeg"),
+
+		GoogleCredentialsFile: credentialsFile,
+		GoogleCalendarID:      calendarID,
 	}, nil
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/tahardi/little-things/backend/internal/config"
 	"github.com/tahardi/little-things/backend/internal/field"
+	"github.com/tahardi/little-things/backend/internal/gcal"
 	"github.com/tahardi/little-things/backend/internal/gifts"
 	"github.com/tahardi/little-things/backend/internal/llm"
 	"github.com/tahardi/little-things/backend/internal/note"
@@ -47,15 +49,23 @@ func run(logger *slog.Logger) error {
 		Gifts:       gifts.NewGenerator(client),
 	}
 
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	if cfg.GoogleCalendarID != "" {
+		syncer, err := gcal.NewSyncer(ctx, cfg.GoogleCredentialsFile, cfg.GoogleCalendarID)
+		if err != nil {
+			return fmt.Errorf("creating calendar syncer: %w", err)
+		}
+		deps.Calendar = syncer
+	}
+
 	srv := &http.Server{
 		Addr:              cfg.ListenAddr,
 		Handler:           server.NewServer(cfg.Key, deps, logger),
 		ReadHeaderTimeout: readHeaderTimeout,
 		WriteTimeout:      writeTimeout,
 	}
-
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
 
 	errCh := make(chan error, 1)
 	go func() { errCh <- srv.ListenAndServe() }()
