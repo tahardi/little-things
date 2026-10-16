@@ -1,17 +1,30 @@
 import type { Db } from '@/db/db';
 import { syncDates } from '@/dates/sync';
+import { syncCalendar } from '@/calendar/sync';
 import { rebuildReminders } from '@/reminders/notifications';
 
 jest.mock('@/settings/store', () => ({
-  loadSettings: async () => ({ baseUrl: '', key: '', reminderLeadDays: 3, reminderHour: 8, reminderMinute: 15 }),
+  loadSettings: async () => ({
+    baseUrl: 'https://pc.ts.net',
+    key: 'k',
+    reminderLeadDays: 3,
+    reminderHour: 8,
+    reminderMinute: 15,
+  }),
 }));
 jest.mock('@/reminders/notifications', () => ({ expoNotifications: {}, rebuildReminders: jest.fn() }));
+jest.mock('@/calendar/sync', () => ({ secureCalendarStore: {}, syncCalendar: jest.fn() }));
+jest.mock('@/api/client', () => ({ createClient: jest.fn((config) => ({ config })) }));
 
 const rebuild = rebuildReminders as jest.MockedFunction<typeof rebuildReminders>;
+const calendar = syncCalendar as jest.MockedFunction<typeof syncCalendar>;
 const db = {} as Db;
 
 describe('syncDates', () => {
-  beforeEach(() => rebuild.mockReset());
+  beforeEach(() => {
+    rebuild.mockReset();
+    calendar.mockReset();
+  });
 
   it('rebuilds reminders with the saved reminder settings', async () => {
     rebuild.mockResolvedValue(true);
@@ -45,6 +58,43 @@ describe('syncDates', () => {
     await expect(syncDates(db)).resolves.toBeUndefined();
     await expect(syncDates(db)).resolves.toBeUndefined();
     expect(warn).toHaveBeenCalledTimes(2);
+    warn.mockRestore();
+  });
+
+  it('syncs the calendar after reminders using the saved backend settings', async () => {
+    const order: string[] = [];
+    rebuild.mockImplementation(async () => {
+      order.push('reminders');
+      return true;
+    });
+    calendar.mockImplementation(async () => {
+      order.push('calendar');
+      return { pending: false, status: 'ok', lastSyncedAt: null };
+    });
+
+    await syncDates(db);
+
+    expect(order).toEqual(['reminders', 'calendar']);
+    expect(calendar).toHaveBeenCalledWith(db, { config: { baseUrl: 'https://pc.ts.net', key: 'k' } }, {});
+  });
+
+  it('still syncs the calendar when reminders fail', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    rebuild.mockRejectedValue(new Error('boom'));
+
+    await syncDates(db);
+
+    expect(calendar).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
+  });
+
+  it('does not throw when the calendar sync fails', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    rebuild.mockResolvedValue(true);
+    calendar.mockRejectedValue(new Error('store broke'));
+
+    await expect(syncDates(db)).resolves.toBeUndefined();
+    expect(warn).toHaveBeenCalledTimes(1);
     warn.mockRestore();
   });
 });
