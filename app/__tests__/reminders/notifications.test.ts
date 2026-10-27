@@ -84,6 +84,16 @@ describe('rebuildReminders', () => {
     expect(calls).toEqual(['request']);
   });
 
+  it('does not ask for permission when there is nothing to remind', async () => {
+    const db = await createTestDb();
+    const { api, calls } = fakeApi(false, true);
+
+    const got = await rebuildReminders(db, settings, api, now);
+
+    expect(got).toBe(true);
+    expect(calls).toEqual(['cancelAll']);
+  });
+
   it('does not duplicate reminders when rebuilt twice', async () => {
     const db = await seed();
     const { api, pending } = fakeApi(true, false);
