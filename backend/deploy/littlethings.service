@@ -1,0 +1,12 @@
+[Unit]
+Description=Little Things backend
+After=network-online.target
+
+[Service]
+ExecStart=%h/.local/bin/littlethings
+EnvironmentFile=%h/.config/littlethings/env
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
