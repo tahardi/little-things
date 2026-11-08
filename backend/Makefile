@@ -45,9 +45,27 @@ test-integration: export WHISPER_MODEL ?= $(CURDIR)/$(whisper_model)
 test-integration: tidy whisper-build whisper-model
 	@go test -v -count=1 -race ./test/integration/...
 
+ENV_FILE := $(HOME)/.config/littlethings/env
+
+.PHONY: build
+build:
+	@go build -o bin/littlethings ./cmd/littlethings
+
+.PHONY: run
+run: build
+	@set -a; . $(ENV_FILE); set +a; ./bin/littlethings
+
+.PHONY: install
+install: build
+	@install -D bin/littlethings $(HOME)/.local/bin/littlethings
+	@install -D -m 644 deploy/littlethings.service $(HOME)/.config/systemd/user/littlethings.service
+	@systemctl --user daemon-reload
+	@systemctl --user enable --now littlethings.service
+	@systemctl --user restart littlethings.service
+
 .PHONY: test-live
 test-live: tidy
-	@go test -v -count=1 -race ./test/live/...
+	@set -a; if [ -f $(ENV_FILE) ]; then . $(ENV_FILE); fi; set +a; go test -v -count=1 -race ./test/live/...
 
 tools_dir=.tools
 whisper_version ?= v1.9.4
