@@ -10,6 +10,7 @@ import { createTestDb } from '../../testing/testDb';
 jest.mock('@/settings/store', () => ({ loadSettings: jest.fn(), saveSettings: jest.fn() }));
 jest.mock('@/api/client', () => ({ ...jest.requireActual('@/api/client'), createClient: jest.fn() }));
 jest.mock('@/dates/sync', () => ({ syncDates: jest.fn().mockResolvedValue(undefined) }));
+jest.mock('@/components/CalendarStatus', () => ({ CalendarStatus: () => null }));
 jest.mock('expo-notifications', () => ({
   getPermissionsAsync: jest.fn().mockResolvedValue({ granted: true }),
   setNotificationHandler: jest.fn(),

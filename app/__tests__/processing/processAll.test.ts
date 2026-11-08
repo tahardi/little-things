@@ -23,6 +23,7 @@ function fakeClient(overrides: Partial<Client>): Client {
     field: jest.fn(),
     note: jest.fn(),
     gifts: jest.fn(),
+    calendar: jest.fn(),
     ...overrides,
   };
 }

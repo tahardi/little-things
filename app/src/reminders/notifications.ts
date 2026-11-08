@@ -40,12 +40,16 @@ export async function rebuildReminders(
   api: NotificationsApi,
   now: Date,
 ): Promise<boolean> {
+  const reminders = computeReminders(await listAllDates(db), now, settings);
+  if (reminders.length === 0) {
+    await api.cancelAll();
+    return true;
+  }
   const granted = (await api.isGranted()) || (await api.request());
   if (!granted) {
     return false;
   }
   await api.cancelAll();
-  const reminders = computeReminders(await listAllDates(db), now, settings);
   for (const reminder of reminders) {
     await api.schedule(reminder);
   }

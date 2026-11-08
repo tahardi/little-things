@@ -1,8 +1,10 @@
 import { File } from 'expo-file-system';
 
-import { isFieldResponse, isGiftsResponse, isHealthResponse, isNoteResponse } from './guards';
+import { isCalendarResponse, isFieldResponse, isGiftsResponse, isHealthResponse, isNoteResponse } from './guards';
 import type {
   ApiPerson,
+  CalendarDate,
+  CalendarResponse,
   ErrorCode,
   Field,
   FieldResponse,
@@ -31,6 +33,7 @@ export type Client = {
   field(audioUri: string, field: Field): Promise<FieldResponse>;
   note(audioUri: string, people: ApiPerson[]): Promise<NoteResponse>;
   gifts(req: GiftsRequest): Promise<GiftsResponse>;
+  calendar(dates: CalendarDate[]): Promise<CalendarResponse>;
 };
 
 const KNOWN_CODES: ErrorCode[] = [
@@ -40,6 +43,7 @@ const KNOWN_CODES: ErrorCode[] = [
   'no_speech',
   'unreadable_date',
   'upstream_failed',
+  'calendar_not_configured',
 ];
 
 function codeForStatus(status: number): ErrorCode {
@@ -133,6 +137,13 @@ export function createClient(config: ClientConfig): Client {
         { method: 'POST', body: JSON.stringify(req), headers: { 'Content-Type': 'application/json' } },
         30_000,
         isGiftsResponse,
+      ),
+    calendar: (dates) =>
+      request(
+        '/calendar',
+        { method: 'PUT', body: JSON.stringify({ dates }), headers: { 'Content-Type': 'application/json' } },
+        30_000,
+        isCalendarResponse,
       ),
   };
 }

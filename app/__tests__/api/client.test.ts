@@ -177,4 +177,47 @@ describe('createClient', () => {
     expect(formValue(init.body, 'field')).not.toBe('k');
     expect(formValue(init.body, 'audio')).not.toBe('k');
   });
+
+  describe('calendar', () => {
+    const request = JSON.parse(fixture('calendar-request.json'));
+
+    it('puts the dates as json and returns the counts', async () => {
+      const fetchFn = respond(200, fixture('calendar-response.json'));
+
+      const got = await client(fetchFn).calendar(request.dates);
+
+      expect(got).toEqual(JSON.parse(fixture('calendar-response.json')));
+      const [url, init] = fetchFn.mock.calls[0];
+      expect(url).toBe('https://pc.ts.net/calendar');
+      expect(init.method).toBe('PUT');
+      expect(init.headers['Content-Type']).toBe('application/json');
+      expect(init.headers.Authorization).toBe('Bearer k');
+      expect(JSON.parse(init.body)).toEqual(request);
+    });
+
+    test.each([
+      [503, fixture('error-calendar-not-configured.json'), 'calendar_not_configured'],
+      [503, '', 'upstream_failed'],
+      [200, '{"created": 1}', 'upstream_failed'],
+    ])('status %i maps to its error code', async (status, body, code) => {
+      await expect(client(respond(status, body)).calendar(request.dates)).rejects.toMatchObject({ code });
+    });
+
+    it('times out after 30 seconds', async () => {
+      jest.useFakeTimers();
+      const fetchFn = jest.fn(
+        (_url: string, init: RequestInit) =>
+          new Promise((_resolve, reject) => init.signal?.addEventListener('abort', () => reject(new Error('aborted')))),
+      );
+      const pending = client(fetchFn).calendar(request.dates);
+      const settled = jest.fn();
+      pending.catch(settled);
+
+      await jest.advanceTimersByTimeAsync(29_999);
+      expect(settled).not.toHaveBeenCalled();
+      await jest.advanceTimersByTimeAsync(1);
+
+      await expect(pending).rejects.toMatchObject({ code: 'unreachable' });
+    });
+  });
 });

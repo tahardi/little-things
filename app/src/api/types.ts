@@ -62,6 +62,17 @@ export type GiftsResponse = { ideas: GiftIdea[] };
 
 export type HealthResponse = { status: string };
 
+export type CalendarDate = {
+  id: number;
+  title: string;
+  month: number;
+  day: number;
+  year: number | null;
+  recurring: boolean;
+};
+
+export type CalendarResponse = { created: number; updated: number; deleted: number };
+
 export type ErrorCode =
   | 'unauthorized'
   | 'bad_request'
@@ -69,4 +80,5 @@ export type ErrorCode =
   | 'no_speech'
   | 'unreadable_date'
   | 'upstream_failed'
+  | 'calendar_not_configured'
   | 'unreachable';
