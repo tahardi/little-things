@@ -3,7 +3,7 @@ module github.com/tahardi/little-things/backend
 go 1.27
 
 require (
-	github.com/anthropics/anthropic-sdk-go v1.78.0
+	github.com/anthropics/anthropic-sdk-go v1.84.0
 	github.com/stretchr/testify v1.12.1
 	google.golang.org/api v0.302.0
 )
